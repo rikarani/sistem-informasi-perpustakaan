@@ -21,12 +21,19 @@ class Delete extends Component
 
     public function delete()
     {
-        $this->category->delete();
+        if ($this->category->books->count() > 0) {
+            Session::flash('success', 'Kategori tidak dapat dihapus karena memiliki buku terkait');
+            $this->dispatch('close-modal');
 
-        Session::flash('success', 'Berhasil menghapus kategori');
-        $this->dispatch('close-modal');
+            $this->redirectRoute('manage category');
+        } else {
+            $this->category->delete();
 
-        return $this->redirectRoute('manage category');
+            Session::flash('success', 'Berhasil menghapus kategori');
+            $this->dispatch('close-modal');
+
+            $this->redirectRoute('manage category');
+        }
     }
 
     public function render()

@@ -6,6 +6,7 @@ use App\Models\Member;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Illuminate\Validation\Rule;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Session;
 
 class Update extends Component
@@ -17,17 +18,15 @@ class Update extends Component
     public string $phone_number;
 
     #[On(('update'))]
-    public function prepare(string $id)
+    public function prepare(string $id): void
     {
         $this->member = Member::findOrFail($id);
-
-        $this->name = $this->member->name;
-        $this->phone_number = $this->member->phone_number;
+        $this->fill($this->member);
 
         $this->dispatch('open-modal', modal: 'update user');
     }
 
-    public function update()
+    public function update(): void
     {
         $data = $this->validate();
 
@@ -36,10 +35,10 @@ class Update extends Component
         Session::flash('success', 'Member berhasil diperbarui');
         $this->dispatch('close-modal');
 
-        return $this->redirectRoute('manage user');
+        $this->redirectRoute('manage user');
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => ['required', 'string', Rule::unique('members', 'name')->ignore($this->member->id)->whereNull('deleted_at')],
@@ -47,7 +46,7 @@ class Update extends Component
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'name.required' => 'Nama tidak boleh kosong',
@@ -56,7 +55,7 @@ class Update extends Component
         ];
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.modal.member.update');
     }
